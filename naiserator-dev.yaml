@@ -1,0 +1,57 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: flex-sykepengesoknad-pdfgenrs
+  namespace: flex
+  labels:
+    team: flex
+spec:
+  image: {{ image }}
+  port: 8080
+  env:
+    - name: DEV_MODE
+      value: "true"
+    - name: MAX_CONCURRENT_COMPILATIONS
+      value: "4"
+    - name: COMEMO_EVICTION_THRESHOLD
+      value: "15"
+    - name: COMPILE_TIMEOUT_SECONDS
+      value: "30"
+    - name: SEMAPHORE_ACQUIRE_TIMEOUT_SECONDS
+      value: "10"
+  replicas:
+    min: 1
+    max: 2
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 90
+  liveness:
+    path: /internal/is_alive
+    timeout: 1
+    initialDelay: 5
+    periodSeconds: 5
+    failureThreshold: 5
+  readiness:
+    path: /internal/is_ready
+    timeout: 1
+    initialDelay: 5
+    periodSeconds: 5
+    failureThreshold: 5
+  prometheus:
+    enabled: true
+    path: /internal/metrics
+  leaderElection: false
+  observability:
+    logging:
+      destinations:
+        - id: loki
+    autoInstrumentation:
+      enabled: true
+      runtime: sdk
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2000Mi
+    requests:
+      cpu: 25m
+      memory: 128Mi

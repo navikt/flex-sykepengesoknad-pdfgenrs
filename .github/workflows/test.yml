@@ -1,0 +1,138 @@
+name: Test PDF generation
+on:
+  workflow_call:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-pdf-generation:
+    name: Test PDF generation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Read pdfgenrs image from Dockerfile
+        run: |
+          PDFGENRS_IMAGE="$(awk '$1 == "FROM" { print $2; exit }' Dockerfile)"
+          test -n "$PDFGENRS_IMAGE"
+          echo "PDFGENRS_IMAGE=$PDFGENRS_IMAGE" >> "$GITHUB_ENV"
+      - name: Start pdfgenrs container
+        run: |
+          docker pull "$PDFGENRS_IMAGE"
+          docker run \
+            --name pdfgenrs \
+            -v ${{ github.workspace }}/templates:/app/templates \
+            -v ${{ github.workspace }}/data:/app/data \
+            -v ${{ github.workspace }}/fonts:/app/fonts \
+            -v ${{ github.workspace }}/resources:/app/resources \
+            -p 8080:8080 \
+            -e DEV_MODE=true \
+            --detach \
+            "$PDFGENRS_IMAGE"
+      - name: Wait for service to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -s -o /dev/null http://localhost:8080/internal/is_ready; then
+              echo "Service is ready"
+              exit 0
+            fi
+            echo "Waiting for service... ($i/30)"
+            sleep 2
+          done
+          echo "::error::Service did not become ready in time"
+          echo "--- Container logs ---"
+          docker logs pdfgenrs
+          echo "--- Container status ---"
+          docker inspect --format='{{.State.Status}} (exit code: {{.State.ExitCode}})' pdfgenrs
+          exit 1
+      - name: Discover and test all template/data pairs
+        run: |
+          failed=0
+          total=0
+          for data_file in $(find data -name '*.json' -type f | sort); do
+            # Extract template group and name from path: data/{group}/{name}.json
+            relative="${data_file#data/}"
+            group="$(dirname "$relative")"
+            name="$(basename "$relative" .json)"
+            total=$((total + 1))
+
+            echo "::group::Testing $group/$name"
+
+            # Test PDF generation
+            echo "--- PDF generation for $group/$name ---"
+            http_status=$(curl -s -w "%{http_code}" \
+              -X POST \
+              -H "Content-Type: application/json" \
+              -d @"$data_file" \
+              http://localhost:8080/api/v1/genpdf/"$group"/"$name" \
+              -o response.pdf)
+
+            if [ "$http_status" != "200" ]; then
+              echo "::error::[$group/$name] PDF: Expected HTTP 200 but got $http_status"
+              cat response.pdf 2>/dev/null || true
+              echo ""
+              docker logs pdfgenrs
+              failed=$((failed + 1))
+              echo "::endgroup::"
+              continue
+            fi
+
+            file_type=$(file --mime-type -b response.pdf)
+            if [ "$file_type" != "application/pdf" ]; then
+              echo "::error::[$group/$name] PDF: Expected application/pdf but got $file_type"
+              head -c 200 response.pdf
+              echo ""
+              docker logs pdfgenrs
+              failed=$((failed + 1))
+              echo "::endgroup::"
+              continue
+            fi
+            echo "PDF generation successful for $group/$name"
+
+            # Test HTML generation
+            echo "--- HTML generation for $group/$name ---"
+            http_status=$(curl -s -w "%{http_code}" \
+              -X POST \
+              -H "Content-Type: application/json" \
+              -d @"$data_file" \
+              http://localhost:8080/api/v1/genhtml/"$group"/"$name" \
+              -o response.html)
+
+            if [ "$http_status" != "200" ]; then
+              echo "::error::[$group/$name] HTML: Expected HTTP 200 but got $http_status"
+              cat response.html 2>/dev/null || true
+              echo ""
+              docker logs pdfgenrs
+              failed=$((failed + 1))
+              echo "::endgroup::"
+              continue
+            fi
+
+            file_type=$(file --mime-type -b response.html)
+            if [ "$file_type" != "text/html" ]; then
+              echo "::error::[$group/$name] HTML: Expected text/html but got $file_type"
+              head -c 500 response.html
+              echo ""
+              docker logs pdfgenrs
+              failed=$((failed + 1))
+              echo "::endgroup::"
+              continue
+            fi
+            echo "HTML generation successful for $group/$name"
+            echo "::endgroup::"
+          done
+
+          echo ""
+          echo "=== Results: $((total - failed))/$total templates passed ==="
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::$failed template(s) failed"
+            exit 1
+          fi
+      - name: Show container logs
+        if: always()
+        run: |
+          echo "--- Container logs ---"
+          docker logs pdfgenrs 2>&1 || true

@@ -1,0 +1,23 @@
+services:
+  pdfgenrs:
+    build: .
+    restart: always
+    platform: linux/amd64
+    ports:
+      - "8080:8080"
+    environment:
+      - DEV_MODE=true
+    develop:
+      watch:
+        - path: ./templates
+          target: /app/templates
+          action: sync+restart
+        - path: ./data
+          target: /app/data
+          action: sync+restart
+        - path: ./fonts
+          target: /app/fonts
+          action: sync+restart
+        - path: ./resources
+          target: /app/resources
+          action: sync+restart

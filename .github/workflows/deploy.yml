@@ -1,0 +1,36 @@
+name: Deploy to dev
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-pdf-generation:
+    name: Test PDF generation
+    uses: ./.github/workflows/test.yml
+    permissions:
+      contents: read
+  build-push-deploy:
+    needs: test-pdf-generation
+    permissions:
+      packages: "write"
+      contents: "read"
+      id-token: "write"
+    name: Checkout code and create docker tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: docker-build-push
+        uses: nais/docker-build-push@12796b9f29e4c8569e1779ac384bfa7a9e4f68c3 # v0
+        id: docker-build-push
+        with:
+          team: pdfgen
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+      - name: deploy to dev-gcp
+        uses: nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: naiserator-dev.yaml
+          VAR: image=${{ steps.docker-build-push.outputs.image }}
