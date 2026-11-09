@@ -1,5 +1,5 @@
 #import "felles-oppsett/base.typ": *
-#import "felles-oppsett/sporsmal.typ": *
+#import "felles-oppsett/sporsmalIterering.typ": *
 
 #let data = json("/data/nav-brev/brev.json")
 #let soknadData = json("/data/flex-sykepengesoknader/arbeidstakere.json")
@@ -17,7 +17,7 @@
 #let avsendertype = soknadData.at("avsendertype", default: (""))
 #let soknadPerioder = soknadData.at("soknadPerioder", default: ())
 #let egenmeldingsdagerFraSykmelding = soknadData.at("egenmeldingsdagerFraSykmelding", default: ())
-#let flereInntektskilderGhost = soknadData.at("flereInntektskilderGhost", default: (:))
+#let flereInntektskilderGhost = soknadData.at("flereInntektskilderGhost", default: ())
 #let sporsmalene = soknadData.at("sporsmal", default: ())
 
 #show: oppsett //Eh er denne nødvendig...?
@@ -34,7 +34,9 @@
   arbeidsgiver,
   egenmeldingsdagerFraSykmelding,
 )
+#linebreak()
 #sporsmalBlokk(
-    sporsmalene
+    sporsmalene,
+    flereInntektskilderGhost: flereInntektskilderGhost
 )
 
