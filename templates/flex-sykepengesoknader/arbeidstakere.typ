@@ -1,7 +1,6 @@
-#import "felles-oppsett/base.typ": *
 #import "felles-oppsett/sporsmalIterering.typ": *
+#import "felles-oppsett/base.typ": *
 
-#let data = json("/data/nav-brev/brev.json")
 #let soknadData = json("/data/flex-sykepengesoknader/arbeidstakere.json")
 
 #let soknadsId = soknadData.at("soknadsId", default: (""))
@@ -20,7 +19,7 @@
 #let flereInntektskilderGhost = soknadData.at("flereInntektskilderGhost", default: ())
 #let sporsmalene = soknadData.at("sporsmal", default: ())
 
-#show: oppsett //Eh er denne nødvendig...?
+#show: oppsett
 
 #topseksjonen(
 "Søknad om sykepenger",

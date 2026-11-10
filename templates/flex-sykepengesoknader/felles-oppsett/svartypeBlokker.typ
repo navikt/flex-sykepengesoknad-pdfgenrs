@@ -1,14 +1,20 @@
 #import "verktoy.typ" : *
 
-#let visSporsmalstekst(sporsmalstekst: none) = [#if sporsmalstekst!=none [
+#let visSporsmalstekst(sporsmalstekst: none) = [#if (sporsmalstekst!=none) and (sporsmalstekst.contains(" ")) [
         #heading(level: 3)[#sporsmalstekst]
     ]
 ]
 
 #let checkbox(sporsmal) = [
     #let visSporsmal = []
-    #box(image("/resources/Checkboks.png", width: 2mm),baseline: 15%)
-    #sporsmal.at("sporsmalstekst", default: "")
+
+    #grid(
+      columns: (auto, 1fr),
+      column-gutter: 8pt,
+      align: horizon,
+      image("/resources/Checkboks.png", width: 2mm),
+      [#sporsmal.at("sporsmalstekst", default: "")],
+    )
 ]
 
 #let radio(sporsmal) = [
@@ -39,12 +45,17 @@
         #linebreak()
     ]
 
-    #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
-    #box(
-        image("/resources/Checkboks.png", width: 2mm),
-        baseline: 15%
-    )
-    #sporsmal.at("svar", default: ()).first().at("verdi")
+    #let svar = sporsmal.at("svar", default: ())
+    #if svar.len()!=0 [
+        #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
+        #grid(
+              columns: (auto, 1fr),
+              column-gutter: 8pt,
+              align: horizon,
+              image("/resources/Checkboks.png", width: 2mm),
+              svar.first().at("verdi", default: ""),
+        )
+    ]
 ]
 
 #let perioder(sporsmal) = [
@@ -61,23 +72,54 @@
     ]
 ]
 
-#let dato(sporsmal) = [
-    #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
+#let datoer(sporsmal) = [
     #let periode = sporsmal.at("svar", default: ())
-    #if periode.len()!=0 [#formaterDato(periode.first().at("verdi", default: none))]
+    #if (periode.len()!=0) [
+        #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
+        #for dato in periode [
+            #block[
+                #formaterDato(dato.at("verdi", default: none))
+            ]
+        ]
+    ]
+]
+
+#let radioGruppeUkekalender(sporsmal) = [
+    #let periode = sporsmal.at("svar", default: ())
+        #if (periode.len()!=0) [
+            #formaterDato(periode.first().at("verdi", default: none))
+        ]
 ]
 
 #let tall(sporsmal) = [
-    #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
     #let svar = sporsmal.at("svar", default: ())
     #if svar.len() > 0 [
+        #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
         #svar.first().at("verdi")
         #if sporsmal.at("undertekst", default: "") == "prosent" [%]
     ]
 ]
 
+#let kilometer(sporsmal) = [
+    #let svar = sporsmal.at("svar", default: ())
+        #if svar.len() > 0 [
+            #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
+            #svar.first().at("verdi") km
+        ]
+]
+
+#let belop(sporsmal) = [
+    #let svar = sporsmal.at("svar", default: ())
+        #if svar.len() > 0 [
+            #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
+            #svar.first().at("verdi") kr
+        ]
+]
+
 #let sporsmalGruppering(sporsmal) = [
-    #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
+    #if sporsmal.at("sporsmalstekst", default: "")!=none [
+        #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
+    ]
 ]
 
 #let vanligTekst(sporsmal) = [
@@ -85,5 +127,17 @@
     #if svar.len() > 0 [
         #heading(level: 3)[#sporsmal.at("sporsmalstekst", default: none)]
         #svar.first().at("verdi")
+    ]
+]
+
+#let checkboxPanel(sporsmal) = [
+    #if sporsmal.at("sporsmalstekst", default: "")!=none [
+        #grid(
+            columns: (auto, 1fr),
+            column-gutter: 8pt,
+            align: horizon,
+            image("/resources/checkbox.svg", width: 2mm),
+            sporsmal.at("sporsmalstekst", default: "")
+        )
     ]
 ]

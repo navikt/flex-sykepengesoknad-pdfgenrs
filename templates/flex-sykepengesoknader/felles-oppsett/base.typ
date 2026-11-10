@@ -31,18 +31,22 @@
 ]
 
 #let soknadMottakereBlokk(innsendtDato, innsendtTid, sendtArbeidsgiver) = [
-    Sendt til Nav
-    #linebreak()
-    #formaterDato(innsendtDato)
-    #linebreak()
-    Sendt til Nav //Må disse hete det samme?
-    #linebreak()
-    #formaterDato(innsendtTid)
-    #linebreak()
-    Sendt til Arbeidsgiver
-    #linebreak()
-    #sendtArbeidsgiver
-    #linebreak()
+
+    #let visMottakere = (
+        (innsendtDato, "Sendt til Nav"),
+        (innsendtTid, "Sendt til Nav"),
+        (sendtArbeidsgiver, "Sendt til Arbeidsgiver")
+    )
+
+    #align(left)[
+        #for (verdi, mottaker) in visMottakere [
+            #if verdi!=none or verdi!="" [
+                #heading(level:3)[#mottaker]
+                #formaterDato(verdi)
+
+            ]
+        ]
+    ]
 ]
 
 #let brukerProfilBlokk(navn, fnr) = [
@@ -74,13 +78,17 @@
 ]
 
 #let sykmeldingSkrevet(sykmeldingUtskrevet) = [
-    #heading(level: 3)[Dato sykmeldingen ble skrevet]
-    #sykmeldingUtskrevet
+    #if sykmeldingUtskrevet!="" and sykmeldingUtskrevet!=none [
+        #heading(level: 3)[Dato sykmeldingen ble skrevet]
+        #sykmeldingUtskrevet
+    ]
 ]
 
 #let arbeidsgiverBlokk(arbeidsgiver) = [
-    #heading(level: 3)[Arbeidsgiver]
-    #arbeidsgiver
+    #if arbeidsgiver!="" and arbeidsgiver!=none [
+        #heading(level: 3)[Arbeidsgiver]
+        #arbeidsgiver
+    ]
 ]
 
 #let egenmeldingBlokk(egenmeldingsdager) = [
