@@ -26,7 +26,6 @@
 ]
 
 #let jaNei(sporsmal, flereInntektskilderGhost: ()) = [
-
     #if (sporsmal.at("tag", default: "") == "FLERE_INNTEKTSKILDER_GHOST") and (flereInntektskilderGhost.len()!=0) [
         #heading(level: 3)[Andre registrerte arbeidsforhold]
         #for inntektskilde in flereInntektskilderGhost [
@@ -96,7 +95,7 @@
     #if svar.len() > 0 [
         #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
         #svar.first().at("verdi")
-        #if sporsmal.at("undertekst", default: "") == "prosent" [%]
+        #if sporsmal.at("undertekst", default: "").contains("prosent") [%]
     ]
 ]
 
@@ -139,5 +138,23 @@
             image("/resources/checkbox.svg", width: 2mm),
             sporsmal.at("sporsmalstekst", default: "")
         )
+    ]
+]
+
+#let land(sporsmal) = [
+    #let landOppgitt = sporsmal.at("svar", default: ())
+    #if landOppgitt.len()!=0 [
+        #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
+        #for land in landOppgitt [
+            #block[#land.at("verdi", default: none)]
+        ]
+    ]
+]
+
+#let ikkeRelevant(sporsmal) = [
+    #if (sporsmal.at("tag", default: "")=="BEKREFT_OPPLYSNINGER_UTLAND_INFO") and (sporsmal.at("undertekst", default: "")!=none) [
+        #visSporsmalstekst(sporsmalstekst: sporsmal.at("sporsmalstekst", default: none))
+        #let undertekst = sporsmal.at("undertekst", default: "")
+        #list(..undertekst.split("<li>").slice(1).map(punkt => [#punkt.split("</li>").first().trim()]))
     ]
 ]

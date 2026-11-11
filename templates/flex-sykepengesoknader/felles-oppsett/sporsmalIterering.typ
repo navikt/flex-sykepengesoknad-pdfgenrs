@@ -1,26 +1,29 @@
 #import "svartypeBlokker.typ":*
 
 #let svartyper = (
+        "AAR_MAANED": (s, ghost) => datoer(s),
+        "BELOP" : (s, ghost) => belop(s),
         "CHECKBOX": (s, ghost) => checkbox(s),
         "CHECKBOX_GRUPPE": (s, ghost) => sporsmalGruppering(s),
+        "CHECKBOX_PANEL" : (s, ghost) => checkboxPanel(s),
         "COMBOBOX_SINGLE": (s, ghost) => vanligTekst(s),
         "DATO": (s, ghost) => datoer(s),
+        "DATOER": (s, ghost) => datoer(s),
         "FRITEKST": (s, ghost) => vanligTekst(s),
+        "IKKE_RELEVANT": (s, ghost) => ikkeRelevant(s),
+        "INFO_BEHANDLINGSDAGER" : (s, ghost) => sporsmalGruppering(s),
         "JA_NEI": (s, ghost) => jaNei(s, flereInntektskilderGhost: ghost),
+        "KILOMETER" : (s, ghost) => kilometer(s),
+        "LAND": (s, ghost) => land(s),
         "PERIODE": (s, ghost) => perioder(s),
         "PERIODER": (s, ghost) => perioder(s),
         "PROSENT": (s, ghost) => tall(s),
-        "TALL": (s, ghost) => tall(s),
-        "TIMER": (s, ghost) => tall(s),
         "RADIO": (s, ghost) => radio(s),
         "RADIO_GRUPPE": (s, ghost) => sporsmalGruppering(s),
         "RADIO_GRUPPE_TIMER_PROSENT": (s, ghost) => sporsmalGruppering(s),
-        "CHECKBOX_PANEL" : (s, ghost) => checkboxPanel(s),
-        "INFO_BEHANDLINGSDAGER" : (s, ghost) => sporsmalGruppering(s),
         "RADIO_GRUPPE_UKEKALENDER" : (s, ghost) => radioGruppeUkekalender(s),
-        "KILOMETER" : (s, ghost) => kilometer(s),
-        "BELOP" : (s, ghost) => belop(s),
-        "DATOER": (s, ghost) => datoer(s)
+        "TALL": (s, ghost) => tall(s),
+        "TIMER": (s, ghost) => tall(s),
     )
 
 #let ikkeVisMedTag = (

@@ -40,7 +40,7 @@
 
     #align(left)[
         #for (verdi, mottaker) in visMottakere [
-            #if verdi!=none or verdi!="" [
+            #if verdi!=none and verdi!="" [
                 #heading(level:3)[#mottaker]
                 #formaterDato(verdi)
 
@@ -120,10 +120,12 @@
       brukerProfilBlokk(navn, fnr),
       soknadMottakereBlokk(innsendtDato, innsendtTid, sendtArbeidsgiver),
     )
-
-    #for periode in soknadPerioder [
-      #soknadsPeriodeBlokk(periode)
+    #if soknadPerioder!=none [
+        #for periode in soknadPerioder [
+          #soknadsPeriodeBlokk(periode)
+        ]
     ]
+
     #sykmeldingSkrevet(sykmeldingUtskrevet)
     #arbeidsgiverBlokk(arbeidsgiver)
     #egenmeldingBlokk(egenmeldingsdagerFraSykmelding)

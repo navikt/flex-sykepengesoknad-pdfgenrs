@@ -38,4 +38,3 @@
     sporsmalene,
     flereInntektskilderGhost: flereInntektskilderGhost
 )
-
