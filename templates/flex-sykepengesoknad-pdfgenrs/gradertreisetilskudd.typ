@@ -1,7 +1,7 @@
-#import "felles-oppsett/sporsmalIterering.typ": *
-#import "felles-oppsett/base.typ": *
+#import "/felles-oppsett/sporsmalIterering.typ": *
+#import "/felles-oppsett/base.typ": *
 
-#let soknadData = json("/data/flex-sykepengesoknader/selvstendignaeringsdrivende.json")
+#let soknadData = json("/data/flex-sykepengesoknad-pdfgenrs/gradertreisetilskudd.json")
 
 #let soknadsId = soknadData.at("soknadsId", default: (""))
 #let fnr = soknadData.at("fnr", default: (""))
@@ -19,10 +19,10 @@
 #let flereInntektskilderGhost = soknadData.at("flereInntektskilderGhost", default: ())
 #let sporsmalene = soknadData.at("sporsmal", default: ())
 
-#show: oppsett
+#show: oppsett.with(tittel: "Søknad om sykepenger")
 
 #topseksjonen(
-"Søknad om sykepenger for selvstendig næringsdrivende", //Må dobbeltsjekke om dette er riktig
+"Søknad om sykepenger med reisetilskudd",
   navn,
   fnr,
   innsendtDato,
@@ -38,3 +38,4 @@
     sporsmalene,
     flereInntektskilderGhost: flereInntektskilderGhost
 )
+

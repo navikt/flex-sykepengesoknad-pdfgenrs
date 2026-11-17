@@ -21,3 +21,6 @@ services:
         - path: ./resources
           target: /app/resources
           action: sync+restart
+        - path: ./felles-oppsett
+          target: /app/felles-oppsett
+          action: sync+restart

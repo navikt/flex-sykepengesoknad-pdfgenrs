@@ -12,7 +12,7 @@
       columns: (auto, 1fr),
       column-gutter: 8pt,
       align: horizon,
-      image("/resources/Checkboks.png", width: 2mm),
+      image("/resources/Checkboks.png", width: 2mm, alt: "Checkbox"),
       [#sporsmal.at("sporsmalstekst", default: "")],
     )
 ]
@@ -20,28 +20,32 @@
 #let radio(sporsmal) = [
     #let svar = sporsmal.at("svar", default: ())
     #if (svar.len() > 0) and (svar.first().at("verdi")=="CHECKED") [
-        #box(image("/resources/Checkboks.png", width: 2mm),baseline: 15%)
+        #box(image("/resources/Checkboks.png", width: 2mm, alt: "Checkbox"),baseline: 15%)
         #sporsmal.at("sporsmalstekst", default: "")
     ]
 ]
 
+#let blokkGhostInntektsliste(flereInntektskilderGhost) = [
+    #heading(level: 3)[Andre registrerte arbeidsforhold]
+            #for inntektskilde in flereInntektskilderGhost [
+                #grid(
+                    columns: (auto, 1fr),
+                    column-gutter: 8pt,
+                    align: horizon,
+                    image("/resources/arbeidsgiver.svg", width: 4mm, alt: "Arbeidsgiver Ikon"),
+                    box[
+                        #text(weight:"bold")[#inntektskilde.at("navn", default: "")]
+                        #linebreak()
+                        Orgnummer: #inntektskilde.at("orgnummer", default: "")
+                    ]
+                )
+            ]
+            #linebreak()
+]
+
 #let jaNei(sporsmal, flereInntektskilderGhost: ()) = [
     #if (sporsmal.at("tag", default: "") == "FLERE_INNTEKTSKILDER_GHOST") and (flereInntektskilderGhost.len()!=0) [
-        #heading(level: 3)[Andre registrerte arbeidsforhold]
-        #for inntektskilde in flereInntektskilderGhost [
-            #grid(
-                columns: (auto, 1fr),
-                column-gutter: 8pt,
-                align: horizon,
-                image("/resources/arbeidsgiver.svg", width: 4mm),
-                box[
-                    #text(weight:"bold")[#inntektskilde.at("navn", default: "")]
-                    #linebreak()
-                    Orgnummer: #inntektskilde.at("orgnummer", default: "")
-                ]
-            )
-        ]
-        #linebreak()
+        #blokkGhostInntektsliste(flereInntektskilderGhost)
     ]
 
     #let svar = sporsmal.at("svar", default: ())
@@ -51,7 +55,7 @@
               columns: (auto, 1fr),
               column-gutter: 8pt,
               align: horizon,
-              image("/resources/Checkboks.png", width: 2mm),
+              image("/resources/Checkboks.png", width: 2mm, alt: "Checkbox"),
               svar.first().at("verdi", default: ""),
         )
     ]
@@ -135,7 +139,7 @@
             columns: (auto, 1fr),
             column-gutter: 8pt,
             align: horizon,
-            image("/resources/checkbox.svg", width: 2mm),
+            image("/resources/checkbox.svg", width: 2mm, alt: "Checkbox"),
             sporsmal.at("sporsmalstekst", default: "")
         )
     ]

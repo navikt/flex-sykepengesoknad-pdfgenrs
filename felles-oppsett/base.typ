@@ -1,7 +1,7 @@
 #import "verktoy.typ": *
 
-#let oppsett(doc) = {
-  set document()
+#let oppsett(doc, tittel: "Søknad om sykepenger") = {
+  set document(title: tittel)
   set text(font: "Source Sans 3", lang: "nb", size: 11pt)
   set page(
     paper: "a4",
